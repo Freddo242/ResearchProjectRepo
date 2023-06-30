@@ -20,14 +20,30 @@ def get_params(values_list, index):
     return [values_list[i][index[i]] for i in range(len(index))]
 
 def plot_top_models(models, accuracys, aurocs, fig = None, ax = None, save = False):
-    """need to add shaded areas for standard deviations for n models. Can be done with plt fill_between."""
+    """
+    models: tuples of parameters for each model (B, K, R, gamma)
+    accuracys: (mean, std) of the acuracy for each set of parameters
+    aurocs: (mean, std) of the auroc for each set of parameters
+
+    need to add shaded areas for standard deviations for n models. Can be done with plt fill_between."""
 
     tick_labels = [rf"B={models[i][0]}, K={models[i][1]}, $\xi$={models[i][2]}, $\gamma$={models[i][3]}" for i in range(len(models))]
 
     if ax:
 
-        ax.plot(accuracys, color = 'green', marker = 'D')
-        ax.plot(aurocs, color = 'blue', marker = 'p')
+        ax.plot(accuracys[0], color = 'green', marker = 'D', label = 'Accuracy')
+        ax.fill_between(np.arange(0, 20, 1), 
+                        accuracys[0] + accuracys[1], 
+                        accuracys[0] - accuracys[1], 
+                        color = 'lightgreen',
+                        alpha = 0.6)
+
+        ax.plot(aurocs[0], color = 'blue', marker = 'p', label = 'AUROC')
+        ax.fill_between(np.arange(0, 20, 1), 
+                        aurocs[0] + aurocs[1], 
+                        aurocs[0] - aurocs[1], 
+                        color = 'lightblue',
+                        alpha = 0.6)
 
         ax.set_ylim(0, 1)
         ax.set_yticks(np.arange(0, 1, 0.2), labels = [ str(round(val, 1)) for val in np.arange(0, 1, 0.2)])
@@ -42,8 +58,19 @@ def plot_top_models(models, accuracys, aurocs, fig = None, ax = None, save = Fal
         
         plt.figure(figsize = (6, 4))
 
-        plt.plot(accuracys, color = 'green', marker = 'D', label = 'Accuracy')
-        plt.plot(aurocs, color = 'blue', marker = 'p', label = 'AUROC')
+        plt.plot(accuracys[0], color = 'green', marker = 'D', label = 'Accuracy')
+        plt.fill_between(np.arange(0, 20, 1), 
+                        accuracys[0] + accuracys[1], 
+                        accuracys[0] - accuracys[1], 
+                        color = 'lightgreen',
+                        alpha = 0.6)
+
+        plt.plot(aurocs[0], color = 'blue', marker = 'p', label = 'AUROC')
+        plt.fill_between(np.arange(0, 20, 1), 
+                        aurocs[0] + aurocs[1], 
+                        aurocs[0] - aurocs[1], 
+                        color = 'lightblue',
+                        alpha = 0.6)
 
         plt.ylim(0, 1)
         plt.yticks(np.arange(0, 1, 0.1), labels = [ str(round(val, 1)) for val in np.arange(0, 1, 0.1)])
