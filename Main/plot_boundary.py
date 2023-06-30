@@ -62,7 +62,7 @@ def plot(X, t, model, contour_func, fig = None, ax = None, colorbar = False, sup
                 cbar.set_ticks([0, 0.5, 1])
             else:
                 cbar = fig.colorbar(cf, ax = ax, label = 'Score')
-                cbar.set_ticks([min_cf, (min_cf + max_cf) / 2, max_cf])
+                cbar.set_ticks([min_cf, 0, max_cf])
 
     else:
         #If no axis, plot a new figure.
@@ -89,7 +89,7 @@ def plot(X, t, model, contour_func, fig = None, ax = None, colorbar = False, sup
                 cbar.set_ticks([0, 0.5, 1])
             else:
                 cbar = fig.colorbar(cf, ax = ax, label = 'Score')
-                cbar.set_ticks([min_cf, (min_cf + max_cf) / 2, max_cf])
+                cbar.set_ticks([min_cf, 0, max_cf])
                 
         plt.show()
 

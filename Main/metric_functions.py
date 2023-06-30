@@ -16,9 +16,9 @@ def false_positive_rate(preds, targets):
     FPR = np.cumsum(sorted_targets != 1) / np.sum(np.array(targets) != 1)
     return FPR
 
-def compute_auc_from_scores(preds, targets):
-    TPR = true_positive_rate(preds, targets)
-    FPR = false_positive_rate(preds, targets)
+def compute_auc_from_scores(scores, targets):
+    TPR = true_positive_rate(scores, targets)
+    FPR = false_positive_rate(scores, targets)
     return compute_auc(TPR, FPR)
 
 def compute_auc(TPR, FPR):
