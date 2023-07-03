@@ -48,12 +48,12 @@ def tune_csvm_parameters(X_train, t_train, C_values, gamma_values, kernel_func, 
     times = np.zeros((len(C_values), len(gamma_values)))
 
     with tqdm(desc='Progress', total = len(C_values) * len(gamma_values)) as pbar:
-
         for i, C in enumerate(C_values):
             for j, gamma in enumerate(gamma_values):
 
                 t0 = time.time()
                 clf = SoftMarginKernelClassifier(C, kernel_func, gamma)
+
                 acc, auc = cross_validation.qp_cross_validate(X_train, t_train, k_folds, clf, num_models = 1)
                 if acc is not None:
                     accuracy_results[i, j] = np.mean(acc)
