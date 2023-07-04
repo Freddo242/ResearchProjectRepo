@@ -29,16 +29,22 @@ def qp_cross_validate(X_train, t_train, k_folds, model, num_models = 1):
         fold_auroc_results = []
 
         for i in range(num_models):
-            no_support_vectors = True
-            while no_support_vectors:
-                #fit the model to find support vectors.
-                if model.__class__.__name__ == "QUBOSoftMarginClassifier":
+            #Split model training up since QUBO classifier requires a different 
+            if model.__class__.__name__ == "QUBOSoftMarginClassifier":
+                no_support_vectors = True
+                #In the rate instance there are no support vectors from QUBOSVM, simply discard the model.
+                while no_support_vectors:
+
                     model = model.make_QUBO_problem(X_train_split, t_train_split).fit(X_train_split, t_train_split)
-                else:
-                    model = model.fit(X_train_split, t_train_split)
-                    #Handling if cvxopt cannot solve the problem.
-                    if model.alphas is None:
-                        return None, None
+
+                    if len(model.support_ids) != 0:
+                        no_support_vectors = False
+
+            else:
+                model = model.fit(X_train_split, t_train_split)
+                #Returning None if the problem raises an error from cvxopt 
+                if model.alphas is None:
+                    return None, None
                 
                 if len(model.support_ids) != 0:
                     no_support_vectors = False
