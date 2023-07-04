@@ -45,8 +45,8 @@ def plot_top_models(models, accuracys, aurocs, fig = None, ax = None, save = Fal
                         color = 'lightblue',
                         alpha = 0.6)
 
-        ax.set_ylim(0, 1)
-        ax.set_yticks(np.arange(0, 1, 0.2), labels = [ str(round(val, 1)) for val in np.arange(0, 1, 0.2)])
+        ax.set_ylim(0.5, 1.05)
+        ax.set_yticks(np.arange(0, 1.2, 0.2), labels = [ str(round(val, 1)) for val in np.arange(0, 1.2, 0.2)])
         
         #ticks will be at 0 to 19
         ax.set_xlim(-1, 20)
@@ -72,8 +72,8 @@ def plot_top_models(models, accuracys, aurocs, fig = None, ax = None, save = Fal
                         color = 'lightblue',
                         alpha = 0.6)
 
-        plt.ylim(0, 1)
-        plt.yticks(np.arange(0, 1, 0.1), labels = [ str(round(val, 1)) for val in np.arange(0, 1, 0.1)])
+        plt.ylim(0.5, 1.25)
+        plt.yticks(np.arange(0, 1.2, 0.2), labels = [ str(round(val, 1)) for val in np.arange(0, 1.2, 0.2)])
         
         #ticks will be at 0 to 19
         plt.xlim(-1, 20)
