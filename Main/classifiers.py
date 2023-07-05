@@ -7,8 +7,6 @@ import simulated_annealing as annealing
 class SoftMarginKernelClassifier(object):
 
     def __init__(self, C, kernel_func, param):
-        from cvxopt import matrix, solvers
-
         self.kernel_function = kernel_func
         self.C = C
         self.param = param

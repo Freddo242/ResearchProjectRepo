@@ -1,5 +1,4 @@
 import numpy as np
-from cvxopt import matrix, solvers
 
 def rbf_kernel(x, y, param):
     """
@@ -15,6 +14,8 @@ def train_qp(P ,q, G, h, A, b):
     """
     returns the solution from cvxopt qp solver
     """
+    from cvxopt import solvers
+
     solvers.options['show_progress'] = False
     try:
         sol = solvers.qp(P ,q, G, h, A, b)
@@ -28,6 +29,8 @@ def kSVM_matrices(X, t, C, kernel_func, gamma):
     """
     returns kernel SVM matrices P, q, G, h, A, b, for use in cvxopt solvers.qp() function. 
     """
+    from cvxopt import matrix
+
     N, d = X.shape
     assert t.shape == (N, 1), f"t is required to be shape ({X.shape[0]}, 1), but is shape {t.shape}"
 
