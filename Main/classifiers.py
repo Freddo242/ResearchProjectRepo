@@ -1,5 +1,4 @@
 import numpy as np
-from cvxopt import matrix, solvers
 
 import kernel_SVM_functions as kSVM
 import QUBO_SVM_functions as qSVM
@@ -8,6 +7,8 @@ import simulated_annealing as annealing
 class SoftMarginKernelClassifier(object):
 
     def __init__(self, C, kernel_func, param):
+        from cvxopt import matrix, solvers
+
         self.kernel_function = kernel_func
         self.C = C
         self.param = param
