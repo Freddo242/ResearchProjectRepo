@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pandas
 from sklearn.model_selection import train_test_split
 
 from classifiers import QUBOSoftMarginClassifier
@@ -16,20 +17,20 @@ def quantum_fit(X_train, t_train, model):
 
     assert model.ObjectiveFunction, "Objective function not set. Run make_QUBO_problem method"
 
-    #create the BinaryQuadraticModel
-
-    q = model.q 
-    linear = {i: q[i][0] for i in range(q.shape[0])}
-
-    Q = model.Q
-    quadratic = {(i, j): Q[i, j] for i in range(Q.shape[0]) for j in range(Q.shape[1])}
-
-    bqm = BinaryQuadraticModel(linear, quadratic, 0, "BINARY")
     #Set up sampler
     sampler = EmbeddingComposite(DWaveSampler())
-    #Sample the results
-    sample_set = sampler.sample(bqm)
+    print("sampler initialised")
+    #Set up qubo problem. Going to use from_qubo since from_numpy_array didn't work too well
+    N = model.Q.shape[0]
+    qubo = np.triu(model.Q + np.identity(N) * model.q)
+    qubo_dict = {(i, j): qubo[i, j] for i in range(N) for j in range(N)} 
+    print("qubo dict created")
 
+    #bqm = BinaryQuadraticModel.from_qubo(qubo_dict)
+    #print("bqm model created")
+    #Sample the results
+    sample_set = sampler.sample_qubo(qubo_dict, num_reads = 100)
+    print("sampler sampled")
     return sample_set
 
 
@@ -44,7 +45,7 @@ def main():
     X = data[:, :-1]
     t = data[:, -1]
 
-    X_train, X_test, t_train, t_test = train_test_split(X, t, train_size = 0.4, shuffle = True, stratify = t)
+    X_train, X_test, t_train, t_test = train_test_split(X, t, train_size = 0.1, shuffle = True, stratify = t)
     t_train = t_train.reshape(-1, 1)
     t_test = t_test.reshape(-1, 1)
 
@@ -56,12 +57,10 @@ def main():
 
     QSVM = QUBOSoftMarginClassifier(B, K, R, kernel_func, gamma)
     QSVM = QSVM.make_QUBO_problem(X_train, t_train)
-
+    print("problem created. Size: ", QSVM.Q.shape[0])
     samples = quantum_fit(X_train, t_train, QSVM)
-    print(samples, '\n')
-    print(type(samples), '\n')
-    with open('sample_dump', 'w') as f:
-        f.write(samples)
+    df = samples.to_pandas_dataframe()
+    df.to_csv('QA_results/testing_samples.csv')
     
     pass
 
