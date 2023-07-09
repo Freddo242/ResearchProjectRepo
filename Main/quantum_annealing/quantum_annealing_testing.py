@@ -26,8 +26,6 @@ def quantum_fit(X_train, t_train, model):
     qubo_dict = {(i, j): qubo[i, j] for i in range(N) for j in range(N)} 
     print("qubo dict created")
 
-    #bqm = BinaryQuadraticModel.from_qubo(qubo_dict)
-    #print("bqm model created")
     #Sample the results
     sample_set = sampler.sample_qubo(qubo_dict, num_reads = 100)
     print("sampler sampled")
@@ -39,7 +37,7 @@ def main():
     #Get data from file
     #create QUBO SVM classifier
     #Train using quantum fitness function which uses bqm
-    filepath = 'synth_data/synth_0.3.csv'
+    filepath = '../synth_data/synth_0.3.csv'
 
     data = np.loadtxt(filepath, delimiter = ',')
     X = data[:, :-1]
@@ -60,7 +58,7 @@ def main():
     print("problem created. Size: ", QSVM.Q.shape[0])
     samples = quantum_fit(X_train, t_train, QSVM)
     df = samples.to_pandas_dataframe()
-    df.to_csv('QA_results/testing_samples.csv')
+    df.to_csv('../QA_results/testing_samples.csv')
     
     pass
 
