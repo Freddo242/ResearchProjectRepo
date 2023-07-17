@@ -1,45 +1,66 @@
 import sys 
-sys.append('../')
+import os
+sys.path.append('../')
 
 import numpy as np 
-from sklearn import StratifiedKFold
+import pandas as pd
+from sklearn.model_selection import StratifiedKFold
 
 import kernel_SVM_functions as kSVM
 import QUBO_SVM_functions as qSVM
-from classifiers import QUBOSoftMarginClassifier
+from quantum_classifier import QSVMq
 from metric_functions import compute_auc_from_scores, compute_accuracy
 
-from dwave.system.composites import EmbeddingComposite
-from dwave.system.samplers import DWaveSampler
+#from dwave.system.composites import EmbeddingComposite
+#from dwave.system.samplers import DWaveSampler
 
 
 def fit_classifier():
     pass
 
-def calibration(B_values, K_values, R_values, gamma_values, kernel_func, k_folds = 10, num_reads = 100):
+def calibration(X_train, t_train, B_values, K_values, R_values, gamma_values, kernel_func, k_folds = 10, num_reads = 100):
     """Function runs cross validation with each combination of hyper-parameters given in the lists.
     returns auroc, accuracy, and times for each combination in a (len(B_values), len(K_values), len(R_values), len(gamma_values)) array.
     """
+    for B in B_values:
+        for K in K_values:
+            for R in R_values:
+                for gamma in gamma_values:
+                    #Make new directory to store results for this hyper-parameter combination.
+                    os.mkdir(f'{B, K, R, gamma}')
+
+                    qsvmq = QSVMq(B, K, R, kernel_func, gamma)
+                    
+                    param_auc = []
+                    param_acc = []
+                    
+                    for s in range(10):
+                        #Sample 20 datapoints from the dataset
+                        #they are now the train test data
+                        "Create directory within params directory for the sample's results"
+                        "Pass in file path containing both parameter directory and sample directory."
+                        #run cross validation to get an auc and accuracy score
+
+
     pass
 
-def QA_cross_validate(X_train, t_train, classifier, k_folds = 10, num_reads = 100):
-    """Performs K-fold cross validation on a QUBO classifier using Quantum Annealing
-    returns accuracy, auroc
+def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_reads = 100):
+    """
+    X_train: training dataset to be 20 datapoints.
+    t_train: corresponding targets of the datapoints.
+    classifier: QSVMq classifier from quantum_classifier.py
+
+    Performs stratified K-fold cross validation on a QUBO classifier using Quantum Annealing.
+
+    returns list of accuracy and auroc results for each fold.
     """
 
-    #Create folds. For each fold.
-    #train test split fold
-    #create the QUBO
-    #fit the QUBO
-    #For each sample: evaluate AUROC, accuracy
-    #Average auroc, accuracy for each sample
-    #Average accuracy, auroc for each fold
-    #return accuracy, auroc
+    assert X_train.shape[0] == 20, f"X_train does not contain 20 datapoints. Instead {X_train.shape[0]}"
 
     skf = StratifiedKFold(n_splits = k_folds)
 
-    accuracy_results = []
     auroc_results = []
+    accuracy_results = []
 
     for i, (train_idx, test_idx) in enumerate(skf.split(X_train, t_train)):
         #Creating train and validation sets from the StratifiedKFold class
@@ -48,31 +69,37 @@ def QA_cross_validate(X_train, t_train, classifier, k_folds = 10, num_reads = 10
         X_test_split = X_train[test_idx]
         t_test_split = t_train[test_idx].reshape(-1, 1)
 
-        fold_accuracy_results = []
-        fold_auroc_results = []
+        #fit classifier. This runs the QA and sets a .top_models attribute containing the top models
+        classifier = classifier.fit(X_train_split, t_train_split, filepath, fold = i + 1)
 
-        #Make qubo problem with the fold's training set.
-        model = classifier.make_QUBO_problem(X_train_split, t_train_split)
+        fold_auc = []
+        fold_acc = []
 
-        #make single qubo matrix to solve in dict format.
-        N = model.Q.shape[0]
-        qubo = np.triu(model.Q + np.identity(N) * model.q)
-        qubo_dict = {(i, j): qubo[i, j] for i in range(N) for j in range(N)} 
+        for alphas in classifier.top_models_arr:
+            classifier = classifier.set_model(X_train_split, t_train_split, alphas)
 
-        #Set up sampler
-        sampler = EmbeddingComposite(DWaveSampler())
+            if len(classifier.support_ids) == 0:
+                continue
 
-        #Sample using QA
-        sample_set = sampler.sample_qubo(qubo_dict, num_reads = num_reads)
+            preds = classifier.predict(X_test_split)
+            scores = classifier.decision_function(X_test_split)
 
-        #For each sample (i.e. alphas/fitted SVM model)
+            auc = compute_auc_from_scores(scores, t_test_split)
+            acc = compute_accuracy(preds, t_test_split)
+
+            fold_auc.append(auc)
+            fold_acc.append(acc)
+
+        if len(fold_auc) == 0:
+            auroc_results.append()
+            continue
+
+        auroc_results.append(np.mean(fold_auc))
+        accuracy_results.append(np.mean(fold_acc))
+
         
 
-
-
-
-    return accuracy, auroc
-
+    return auroc_results, accuracy_results
 
 
 def main():
