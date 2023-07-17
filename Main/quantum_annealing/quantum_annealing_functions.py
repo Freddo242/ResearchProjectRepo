@@ -15,31 +15,66 @@ from metric_functions import compute_auc_from_scores, compute_accuracy
 #from dwave.system.samplers import DWaveSampler
 
 
-def fit_classifier():
-    pass
+def stratified_sample(t, size = 20):
+    """picks indexes for values in arr such that same number of values for each class appear in the sample"""
 
-def calibration(X_train, t_train, B_values, K_values, R_values, gamma_values, kernel_func, k_folds = 10, num_reads = 100):
-    """Function runs cross validation with each combination of hyper-parameters given in the lists.
-    returns auroc, accuracy, and times for each combination in a (len(B_values), len(K_values), len(R_values), len(gamma_values)) array.
+    assert size % 2 == 0, f"size needs to be an even number please. You gave {size}"
+
+    t = t.flatten()
+    poss_indexes = np.arange(len(t))
+    pos_group = poss_indexes[t == 1]
+    neg_group = poss_indexes[t == -1]
+
+    return np.append(np.random.choice(pos_group, size = int(size / 2), replace = True), np.random.choice(neg_group, size = int(size / 2), replace = True))
+
+
+def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values, kernel_func, k_folds = 10, num_reads = 100):
     """
-    for B in B_values:
-        for K in K_values:
-            for R in R_values:
-                for gamma in gamma_values:
-                    #Make new directory to store results for this hyper-parameter combination.
-                    os.mkdir(f'{B, K, R, gamma}')
+    X_train: shape (N, d)
+    t_train: shape (N, 1)
+    values lists: combination of which we test QA svm on 
 
+    For each combination of values, 
+        for 10 stratified samples of 20 datapoints from the training data
+        cross validation performed to get an accurate auroc and accuracy score
+        
+        combination AUROC and Accuracy results averaged over the 10 samples.
+
+    """
+
+    auroc = np.zeros((len(B_values), len(K_values), len(R_values), len(gamma_values)))
+    accuracy = np.zeros((len(B_values), len(K_values), len(R_values), len(gamma_values)))
+
+    for i, B in enumerate(B_values):
+        for j, K in enumerate(K_values):
+            for k, R in enumerate(R_values):
+                for l, gamma in enumerate(gamma_values):
+                    #Make new directory to store results for this hyper-parameter combination.
+                    os.mkdir(f'../QA_results/{B, K, R, gamma}')
+
+                    #Setting up the classifier for cross validation
                     qsvmq = QSVMq(B, K, R, kernel_func, gamma)
                     
-                    param_auc = []
-                    param_acc = []
+                    set_auc = []
+                    set_acc = []
                     
                     for s in range(10):
-                        #Sample 20 datapoints from the dataset
-                        #they are now the train test data
-                        "Create directory within params directory for the sample's results"
-                        "Pass in file path containing both parameter directory and sample directory."
-                        #run cross validation to get an auc and accuracy score
+                        #Making subdirectory for the sample
+                        os.mkdir(f'../QA_results/{B, K, R, gamma}/sample-{s + 1}/')
+                        
+                        #stratified sample based on t of size 20
+                        sample_index = stratified_sample(t_train, 20)
+
+                        X_train_sample = X_train[sample_index]
+                        t_train_sample = t_train[sample_index]
+
+                        #filepath to save the fold models from the QA
+                        filepath = f'../QA_results/{B, K, R, gamma}/sample-{s + 1}/'
+
+                        auroc_results, accuracy_results = QA_cross_validate(X_train_sample, t_train_sample, qsvmq, filepath)
+
+                        auroc[i, j, k, l] = np.mean(auroc_results)
+                        accuracy[i, j, k, l] = np.mean(accuracy_results)
 
 
     pass
@@ -96,8 +131,6 @@ def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_
 
         auroc_results.append(np.mean(fold_auc))
         accuracy_results.append(np.mean(fold_acc))
-
-        
 
     return auroc_results, accuracy_results
 
