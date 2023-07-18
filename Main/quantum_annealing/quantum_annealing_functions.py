@@ -11,9 +11,6 @@ import QUBO_SVM_functions as qSVM
 from quantum_classifier import QSVMq
 from metric_functions import compute_auc_from_scores, compute_accuracy
 
-#from dwave.system.composites import EmbeddingComposite
-#from dwave.system.samplers import DWaveSampler
-
 
 def stratified_sample(t, size = 20):
     """picks indexes for values in arr such that same number of values for each class appear in the sample"""
@@ -52,7 +49,7 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
             for k, R in enumerate(R_values):
                 for l, gamma in enumerate(gamma_values):
                     #Make new directory to store results for this hyper-parameter combination.
-                    os.mkdir(f'../QA_results/{B, K, R, gamma}')
+                    #os.mkdir(f'../QA_results/{B, K, R, gamma}')
 
                     #Setting up the classifier for cross validation
                     qsvmq = QSVMq(B, K, R, kernel_func, gamma)
@@ -62,7 +59,7 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
                     
                     for s in range(10):
                         #Making subdirectory for the sample
-                        os.mkdir(f'../QA_results/{B, K, R, gamma}/sample-{s + 1}/')
+                        #os.mkdir(f'../QA_results/{B, K, R, gamma}/sample-{s + 1}/')
                         
                         #stratified sample based on t of size 20
                         sample_index = stratified_sample(t_train, 20)
@@ -91,6 +88,7 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
 
                         if x == 'goforit':
                             global_wait = False
+                            break
 
     np.save('../QA_results/QA_auroc', auroc)
     np.save('../QA_results/QA_accuracy', accuracy)
@@ -123,15 +121,17 @@ def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_
         t_test_split = t_train[test_idx].reshape(-1, 1)
 
         #fit classifier. This runs the QA and sets a .top_models attribute containing the top models
-        classifier = classifier.fit(X_train_split, t_train_split, filepath, fold = i + 1)
+        classifier = classifier.make_QUBO_problem(X_train_split, t_train_split).fit(X_train_split, t_train_split, filepath, fold = i + 1)
 
         fold_auc = []
         fold_acc = []
 
         for alphas in classifier.top_models_arr:
-            classifier = classifier.set_model(X_train_split, t_train_split, alphas)
+
+            classifier = classifier.set_model(X_train_split, t_train_split, alphas.reshape(-1, 1))
 
             if len(classifier.support_ids) == 0:
+                print("No support vectors found")
                 continue
 
             preds = classifier.predict(X_test_split)
