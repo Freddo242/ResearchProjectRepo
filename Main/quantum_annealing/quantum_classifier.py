@@ -7,8 +7,8 @@ import pandas as pd
 import kernel_SVM_functions as kSVM
 import QUBO_SVM_functions as qSVM
 
-#from dwave.system.composites import EmbeddingComposite
-#from dwave.system.samplers import DWaveSampler
+from dwave.system.composites import EmbeddingComposite
+from dwave.system.samplers import DWaveSampler
 
 
 class QSVMq(object):
@@ -40,12 +40,10 @@ class QSVMq(object):
 
         self.bias = None
 
-    def make_QUBO_problem(self, X_train, t_train, fold = None):
+    def make_QUBO_problem(self, X_train, t_train):
         """Given X_train, t_train data to train the model. 
             Creates the qubo dict in order to fit the model using DWave sampler.
         """
-        #recording the fold for recording purposes
-        self.fold = fold
 
         self.Q, self.q = qSVM.make_QUBO_matrices(X_train, t_train, self.kernel_func, self.param, self.B, self.K, self.R)
 
@@ -68,24 +66,27 @@ class QSVMq(object):
         Solves the self.qubo_dict using the DWave Sampler and takes 100 reads
         """
 
-        #sampler = EmbeddingComposite(DWaveSampler())
-        #sample_set = sampler.sample_qubo(self.qubo_dict, num_reads = num_reads)
-        #sample_df = sample_set.to_pandas_dataframe()
-        #if fold:
-        #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
-        #else:
-        #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param})
-        #top_models = sample_df.sort_values('energy', ascending = True)[: num_top_models]
-        #alphas = np.array([list(row[1: -3]) for index, row in top_models.iterrows()])
-        #self.top_models_arr = np.apply_along_axis(lambda encoded_arr: qSVM.decode(encoded_arr, self.B, self.K), axis = 1, arr = encoded_alphas)
-
-        self.top_models_arr = np.random.randint(0, 2, size = (10, self.K * X_train.shape[0]))
-        test_df = pd.DataFrame(self.top_models_arr)
+        sampler = EmbeddingComposite(DWaveSampler())
+        sample_set = sampler.sample_qubo(self.qubo_dict, num_reads = num_reads)
+        sample_df = sample_set.to_pandas_dataframe()
 
         if fold:
-            test_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
+            sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
         else:
-            test_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
+            sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
+
+        top_models = sample_df.sort_values('energy', ascending = True)[: num_top_models]
+        encoded_alphas = np.array([list(row[1: -3]) for index, row in top_models.iterrows()])
+        self.top_models_arr = np.apply_along_axis(lambda encoded_arr: qSVM.decode(encoded_arr, self.B, self.K), axis = 1, arr = encoded_alphas)
+
+        #Code below is for testing purposes.
+        #self.top_models_arr = np.random.randint(0, 2, size = (10, self.K * X_train.shape[0]))
+        #test_df = pd.DataFrame(self.top_models_arr)
+#
+        #if fold:
+        #    test_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
+        #else:
+        #    test_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
 
         return self
         
