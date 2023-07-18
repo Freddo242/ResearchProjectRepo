@@ -66,17 +66,22 @@ class QSVMq(object):
         Solves the self.qubo_dict using the DWave Sampler and takes 100 reads
         """
 
-        sampler = EmbeddingComposite(DWaveSampler())
-        sample_set = sampler.sample_qubo(self.qubo_dict, num_reads = num_reads)
-        sample_df = sample_set.to_pandas_dataframe()
+        #sampler = EmbeddingComposite(DWaveSampler())
+        #sample_set = sampler.sample_qubo(self.qubo_dict, num_reads = num_reads)
+        #sample_df = sample_set.to_pandas_dataframe()
 
-        if fold:
-            sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
-        else:
-            sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
+        #if fold:
+        #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
+            
+        #else:
+        #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
 
-        top_models = sample_df.sort_values('energy', ascending = True)[: num_top_models]
+        sample_df = pd.read_csv('../QA_results/(2, 3, 1, 2)/sample-1/(2, 3, 1, 2)-f1')
+
+        sample_df = sample_df.sort_values('energy', ascending = True)
+        top_models = sample_df[: num_top_models]
         encoded_alphas = np.array([list(row[1: -3]) for index, row in top_models.iterrows()])
+        
         self.top_models_arr = np.apply_along_axis(lambda encoded_arr: qSVM.decode(encoded_arr, self.B, self.K), axis = 1, arr = encoded_alphas)
 
         #Code below is for testing purposes.
@@ -90,12 +95,11 @@ class QSVMq(object):
 
         return self
         
-    def set_model(self, X_train, t_train, encoded_alphas):
+    def set_model(self, X_train, t_train, alphas):
         """Method to set the model with given alphas"""
-        self.alphas = qSVM.decode(encoded_alphas, self.B, self.K).reshape(-1, 1)
 
-        self.support_ids, self.support_vectors, self.support_targets, self.support_alphas = kSVM.get_support_vectors(X_train, t_train, self.alphas, self.C) 
-        self.bias = kSVM.discriminant_bias(X_train, t_train, self.alphas, self.C, self.kernel_func, self.param)
+        self.support_ids, self.support_vectors, self.support_targets, self.support_alphas = kSVM.get_support_vectors(X_train, t_train, alphas, self.C) 
+        self.bias = kSVM.discriminant_bias(X_train, t_train, alphas, self.C, self.kernel_func, self.param)
 
         return self
     
