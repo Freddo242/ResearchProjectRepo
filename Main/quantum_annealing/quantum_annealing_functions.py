@@ -42,6 +42,8 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
 
     """
 
+    global_wait = True
+
     auroc = np.zeros((len(B_values), len(K_values), len(R_values), len(gamma_values)))
     accuracy = np.zeros((len(B_values), len(K_values), len(R_values), len(gamma_values)))
 
@@ -73,11 +75,27 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
 
                         auroc_results, accuracy_results = QA_cross_validate(X_train_sample, t_train_sample, qsvmq, filepath)
 
-                        auroc[i, j, k, l] = np.mean(auroc_results)
-                        accuracy[i, j, k, l] = np.mean(accuracy_results)
+                        set_auc.append(np.mean(auroc_results))
+                        set_acc.append(np.mean(accuracy_results))
 
+                    auroc[i, j, k, l] = np.mean(set_auc)
+                    accuracy[i, j, k, l] = np.mean(set_acc)
 
-    pass
+                    wait = global_wait
+
+                    while wait:
+                        x = input('waiting...')
+
+                        if x == 'next':
+                            wait = False
+
+                        if x == 'goforit':
+                            global_wait = False
+
+    np.save('../QA_results/QA_auroc', auroc)
+    np.save('../QA_results/QA_accuracy', accuracy)
+
+    return auroc, accuracy
 
 def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_reads = 100):
     """
