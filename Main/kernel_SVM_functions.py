@@ -59,6 +59,9 @@ def discriminant_bias(X_train, t_train, alphas, C, kernel_func = None, gamma = N
     assert alphas.shape == (N, 1), f"alphas has shape {alphas.shape}, but should have shape ({N}, 1)"
 
     denominator = np.dot(alphas.reshape(1, -1), (C - alphas))
+    #if this is zero, the support vectors do not lie on the margin, therefore we give a bias of 0.
+    if denominator[0][0] == 0:
+        return 0
 
     if kernel_func:
         H = np.array([[kernel_func(X_train[m], X_train[n], gamma) for m in range(N)] for n in range(N)])
@@ -74,11 +77,9 @@ def get_support_vectors(X_train, t_train, alphas, C):
     #Returns support ids, support vectors, support targets, and support alphas for use in calculating score.
     N = X_train.shape[0]
     assert (t_train.shape[0] == N) and (alphas.shape[0] == N), "either t_train or alphas does not match the shape of X_train"
+    
     #Find support vectors and their alphas and corresponding targets
-    support_ids = np.where(np.logical_and(alphas > 1e-4, alphas < C - 1e-4).flatten())[0]
-    #if len(support_ids) == 0:
-    #    print('alphas: ', alphas)
-    #    raise Exception("No support vectors found")
+    support_ids = np.where((alphas.flatten() > 1e-4))[0]
 
     support_vectors = X_train[support_ids]
     support_targets = t_train[support_ids]

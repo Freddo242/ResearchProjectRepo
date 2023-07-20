@@ -7,8 +7,8 @@ import pandas as pd
 import kernel_SVM_functions as kSVM
 import QUBO_SVM_functions as qSVM
 
-from dwave.system.composites import EmbeddingComposite
-from dwave.system.samplers import DWaveSampler
+#from dwave.system.composites import EmbeddingComposite
+#from dwave.system.samplers import DWaveSampler
 
 
 class QSVMq(object):
