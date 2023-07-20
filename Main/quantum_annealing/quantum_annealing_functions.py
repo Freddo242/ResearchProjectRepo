@@ -59,7 +59,7 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
                                                             for l, gamma in enumerate(gamma_values)])
 
     #This is an array of the parameter combinations we have already completed. The code is too long to do all at once.
-    params_to_skip = np.array([[2, 3, 1, 2]])
+    params_to_skip = np.array([[2, 3, 1, 2], [2, 3, 1, 4]])
     #index of the combinations to include
     include_index = include_indices(param_combinations, params_to_skip)
 
