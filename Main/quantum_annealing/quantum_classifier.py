@@ -87,7 +87,7 @@ class QSVMq(object):
         #sorting by energy to find the top num_models
         sample_df = sample_df.sort_values('energy', ascending = True)
         top_models = sample_df[: num_top_models]
-        
+
         #turning the encoded alphas into a np array
         encoded_alphas = np.array([list(row[1: -3]) for index, row in top_models.iterrows()])
         
