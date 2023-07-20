@@ -48,8 +48,9 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
         for j, K in enumerate(K_values):
             for k, R in enumerate(R_values):
                 for l, gamma in enumerate(gamma_values):
+                    print(B, K, R, gamma, '\n')
                     #Make new directory to store results for this hyper-parameter combination.
-                    #os.mkdir(f'../QA_results/{B, K, R, gamma}')
+                    os.mkdir(f'../QA_results/{B, K, R, gamma}')
 
                     #Setting up the classifier for cross validation
                     qsvmq = QSVMq(B, K, R, kernel_func, gamma)
@@ -59,7 +60,7 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
                     
                     for s in range(10):
                         #Making subdirectory for the sample
-                        #os.mkdir(f'../QA_results/{B, K, R, gamma}/sample-{s + 1}/')
+                        os.mkdir(f'../QA_results/{B, K, R, gamma}/sample-{s + 1}/')
                         
                         #stratified sample based on t of size 20
                         sample_index = stratified_sample(t_train, 20)
@@ -152,10 +153,11 @@ def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_
                 auc = compute_auc_from_scores(scores, t_test_split)
                 acc = compute_accuracy(preds, t_test_split)
 
-                print(auc, acc)
-
                 fold_auc.append(auc)
                 fold_acc.append(acc)
+
+        print("Fold auc, ", np.mean(fold_auc))
+        print("Fold acc, ", np.mean(fold_acc))
 
         auroc_results.append(np.mean(fold_auc))
         accuracy_results.append(np.mean(fold_acc))

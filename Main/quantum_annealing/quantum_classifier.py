@@ -7,8 +7,8 @@ import pandas as pd
 import kernel_SVM_functions as kSVM
 import QUBO_SVM_functions as qSVM
 
-#from dwave.system.composites import EmbeddingComposite
-#from dwave.system.samplers import DWaveSampler
+from dwave.system.composites import EmbeddingComposite
+from dwave.system.samplers import DWaveSampler
 
 
 class QSVMq(object):
@@ -68,28 +68,26 @@ class QSVMq(object):
         Solves the self.qubo_dict using the DWave Sampler and takes 100 reads
         """
 
-        ##setting up sampler
-        #sampler = EmbeddingComposite(DWaveSampler())
+        #setting up sampler
+        sampler = EmbeddingComposite(DWaveSampler())
 
-        ##running QA and taking reads from the lowest energy level.
-        #sample_set = sampler.sample_qubo(self.qubo_dict, num_reads = num_reads)
-        #sample_df = sample_set.to_pandas_dataframe()
+        #running QA and taking reads from the lowest energy level.
+        sample_set = sampler.sample_qubo(self.qubo_dict, num_reads = num_reads)
+        sample_df = sample_set.to_pandas_dataframe()
 
-        #if fold:
-        #    #reading from csv once we've saved it to avoid a bug with the sample set
-        #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
-        #    sample_df = pd.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
-            
-        #else:
-        #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
-        #    sample_df.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
-
-        #DELETE THIS LINE BEFORE STARTING
-        sample_df = pd.read_csv('../QA_results/(2, 3, 1, 2)/sample-1/(2, 3, 1, 2)-f1')
+        if fold:
+            #reading from csv once we've saved it to avoid a bug with the sample set
+            sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
+            sample_df = pd.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
+           
+        else:
+            sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
+            sample_df.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
 
         #sorting by energy to find the top num_models
         sample_df = sample_df.sort_values('energy', ascending = True)
         top_models = sample_df[: num_top_models]
+        
         #turning the encoded alphas into a np array
         encoded_alphas = np.array([list(row[1: -3]) for index, row in top_models.iterrows()])
         
