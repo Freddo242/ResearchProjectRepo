@@ -71,10 +71,13 @@ class QSVMq(object):
         #sample_df = sample_set.to_pandas_dataframe()
 
         #if fold:
+        #    #reading from csv once we've saved it to avoid a bug with 
         #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
+        #    sample_df = pd.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
             
         #else:
         #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
+        #    sample_df.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
 
         sample_df = pd.read_csv('../QA_results/(2, 3, 1, 2)/sample-1/(2, 3, 1, 2)-f1')
 
