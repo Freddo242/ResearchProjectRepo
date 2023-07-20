@@ -48,7 +48,9 @@ class QSVMq(object):
         self.Q, self.q = qSVM.make_QUBO_matrices(X_train, t_train, self.kernel_func, self.param, self.B, self.K, self.R)
 
         N = self.Q.shape[0]
+        #Taking the upper triangular of the matrix
         qubo = np.triu(self.Q + np.identity(N) * self.q)
+        #Turning the qubo matrix into a dictionary for the sample_qubo() function 
         self.qubo_dict = {(i, j): qubo[i, j] for i in range(N) for j in range(N)} 
 
         return self
@@ -66,12 +68,15 @@ class QSVMq(object):
         Solves the self.qubo_dict using the DWave Sampler and takes 100 reads
         """
 
+        ##setting up sampler
         #sampler = EmbeddingComposite(DWaveSampler())
+
+        ##running QA and taking reads from the lowest energy level.
         #sample_set = sampler.sample_qubo(self.qubo_dict, num_reads = num_reads)
         #sample_df = sample_set.to_pandas_dataframe()
 
         #if fold:
-        #    #reading from csv once we've saved it to avoid a bug with 
+        #    #reading from csv once we've saved it to avoid a bug with the sample set
         #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
         #    sample_df = pd.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
             
@@ -79,12 +84,16 @@ class QSVMq(object):
         #    sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
         #    sample_df.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
 
+        #DELETE THIS LINE BEFORE STARTING
         sample_df = pd.read_csv('../QA_results/(2, 3, 1, 2)/sample-1/(2, 3, 1, 2)-f1')
 
+        #sorting by energy to find the top num_models
         sample_df = sample_df.sort_values('energy', ascending = True)
         top_models = sample_df[: num_top_models]
+        #turning the encoded alphas into a np array
         encoded_alphas = np.array([list(row[1: -3]) for index, row in top_models.iterrows()])
         
+        #Decoding alphas
         self.top_models_arr = np.apply_along_axis(lambda encoded_arr: qSVM.decode(encoded_arr, self.B, self.K), axis = 1, arr = encoded_alphas)
 
         #Code below is for testing purposes.
@@ -101,6 +110,7 @@ class QSVMq(object):
     def set_model(self, X_train, t_train, alphas):
         """Method to set the model with given alphas"""
 
+        #Finding support vectors 
         self.support_ids, self.support_vectors, self.support_targets, self.support_alphas = kSVM.get_support_vectors(X_train, t_train, alphas, self.C) 
         self.bias = kSVM.discriminant_bias(X_train, t_train, alphas, self.C, self.kernel_func, self.param)
 
@@ -110,10 +120,11 @@ class QSVMq(object):
         return kSVM.score_kSVM(X_test, self.support_vectors, self.support_targets, self.support_alphas, self.kernel_func, self.param, self.bias)
 
     def predict_proba(self, X_test):
+        #Returns the probability of a vector in X_test belonging to the positive class
         scores = self.decision_function(X_test)
         probs = 1 / (1 + np.exp(-scores))
         return probs
     
     def predict(self, X_test):
-        """Returns the predicted class for the test data"""
+        """Returns the predicted class for the test data with threshold 0"""
         return np.sign(self.decision_function(X_test))

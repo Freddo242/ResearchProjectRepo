@@ -18,10 +18,12 @@ def stratified_sample(t, size = 20):
     assert size % 2 == 0, f"size needs to be an even number please. You gave {size}"
 
     t = t.flatten()
+    #Getting the indices associated with each class
     poss_indexes = np.arange(len(t))
     pos_group = poss_indexes[t == 1]
     neg_group = poss_indexes[t == -1]
 
+    #returning randomly picked incides from each class with replacement 
     return np.append(np.random.choice(pos_group, size = int(size / 2), replace = True), np.random.choice(neg_group, size = int(size / 2), replace = True))
 
 
@@ -70,11 +72,14 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
                         #filepath to save the fold models from the QA
                         filepath = f'../QA_results/{B, K, R, gamma}/sample-{s + 1}/'
 
+                        #Cross validating training and test data for this sample giving us an accurate auroc and accuracy
                         auroc_results, accuracy_results = QA_cross_validate(X_train_sample, t_train_sample, qsvmq, filepath)
 
+                        #Taking the mean of the metrics across each of the folds
                         set_auc.append(np.mean(auroc_results))
                         set_acc.append(np.mean(accuracy_results))
 
+                    #final metrics are the average over each sample
                     auroc[i, j, k, l] = np.mean(set_auc)
                     accuracy[i, j, k, l] = np.mean(set_acc)
 
@@ -108,6 +113,7 @@ def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_
 
     assert X_train.shape[0] == 20, f"X_train does not contain 20 datapoints. Instead {X_train.shape[0]}"
 
+    #Setgs up sklearn StratifiedKFold 
     skf = StratifiedKFold(n_splits = k_folds)
 
     auroc_results = []
@@ -120,32 +126,36 @@ def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_
         X_test_split = X_train[test_idx]
         t_test_split = t_train[test_idx].reshape(-1, 1)
 
-        #fit classifier. This runs the QA and sets a .top_models attribute containing the top models
-        classifier = classifier.make_QUBO_problem(X_train_split, t_train_split).fit(X_train_split, t_train_split, filepath, fold = i + 1)
+        no_support_vectors = True
 
-        fold_auc = []
-        fold_acc = []
+        while no_support_vectors:
 
-        for alphas in classifier.top_models_arr:
+            #fit classifier. This runs the QA and sets a .top_models attribute containing the top models
+            classifier = classifier.make_QUBO_problem(X_train_split, t_train_split).fit(X_train_split, t_train_split, filepath, fold = i + 1)
 
-            classifier = classifier.set_model(X_train_split, t_train_split, alphas.reshape(-1, 1))
+            fold_auc = []
+            fold_acc = []
 
-            if len(classifier.support_ids) == 0:
-                print("No support vectors found")
-                continue
+            for alphas in classifier.top_models_arr:
+                #Iterating through each of the best models and evaluating their performance
 
-            preds = classifier.predict(X_test_split)
-            scores = classifier.decision_function(X_test_split)
+                classifier = classifier.set_model(X_train_split, t_train_split, alphas.reshape(-1, 1))
 
-            auc = compute_auc_from_scores(scores, t_test_split)
-            acc = compute_accuracy(preds, t_test_split)
+                if len(classifier.support_ids) == 0:
+                    #If not support vectors found, discard the model and continue.
+                    print("No support vectors found")
+                    continue
 
-            fold_auc.append(auc)
-            fold_acc.append(acc)
+                no_support_vectors = False
 
-        if len(fold_auc) == 0:
-            auroc_results.append()
-            continue
+                preds = classifier.predict(X_test_split)
+                scores = classifier.decision_function(X_test_split)
+
+                auc = compute_auc_from_scores(scores, t_test_split)
+                acc = compute_accuracy(preds, t_test_split)
+
+                fold_auc.append(auc)
+                fold_acc.append(acc)
 
         auroc_results.append(np.mean(fold_auc))
         accuracy_results.append(np.mean(fold_acc))
