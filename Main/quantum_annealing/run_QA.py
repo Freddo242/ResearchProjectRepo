@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../')
+sys.path.insert(0, '~/desktop/research project/researchprojectrepo/main')
 
 import numpy as np
 np.random.seed(314159)
