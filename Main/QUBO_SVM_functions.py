@@ -32,7 +32,7 @@ def make_QUBO_matrices(X, t, kernel_func, param, B, K ,R):
     """
     N = X.shape[0]
 
-    H = np.array([[kernel_func(X[n], X[m], param) - R for n in range(N)] for m in range(N)])
+    H = np.array([[kernel_func(X[n], X[m], param) + R for n in range(N)] for m in range(N)])
     H = H * t
     H = H * t.reshape(1, -1)
 
