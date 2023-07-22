@@ -42,7 +42,7 @@ def make_QUBO_matrices(X, t, kernel_func, param, B, K ,R):
         P[i, i*K: (i + 1) * K] = b
 
     q = -P.T @ np.ones((N, 1))
-    Q = (P.T @ H) @ P
+    Q = ((P.T @ H) @ P) / 2
 
     return Q, q
 
