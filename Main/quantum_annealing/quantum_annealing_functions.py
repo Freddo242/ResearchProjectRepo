@@ -50,8 +50,8 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
 
     global_wait = True
 
-    auroc = np.zeros((len(B_values), len(K_values), len(R_values), len(gamma_values)))
-    accuracy = np.zeros((len(B_values), len(K_values), len(R_values), len(gamma_values)))
+    auroc = np.load('../QA_results/QA_auroc.npy')
+    accuracy = np.load('../QA_results/QA_accuracy.npy')
 
     param_combinations = np.array([[[i, B], [j, K], [k, R], [l, gamma]] for i, B in enumerate(B_values) 
                                                             for j, K in enumerate(K_values) 
@@ -59,7 +59,8 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
                                                             for l, gamma in enumerate(gamma_values)])
 
     #This is an array of the parameter combinations we have already completed. The code is too long to do all at once.
-    params_to_skip = np.array([[2, 3, 1, 2], [2, 3, 1, 4]])
+    params_to_skip = np.array([[2, 3, 1, 2], [2, 3, 1, 4], [2, 3, 3, 2], [2, 3, 3, 4], [2, 4, 1, 2], 
+    [2, 4, 1, 4], [2, 4, 3, 2], [2, 4, 3, 4], [3, 3, 1, 2], [3, 3, 1, 4], [3, 3, 3, 2], [3, 3, 3, 4]])
     #index of the combinations to include
     include_index = include_indices(param_combinations, params_to_skip)
 
@@ -82,7 +83,7 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
         set_auc = []
         set_acc = []
                     
-        for s in range(10):
+        for s in range(5):
 
             t1 = time()
             #Making subdirectory for the sample

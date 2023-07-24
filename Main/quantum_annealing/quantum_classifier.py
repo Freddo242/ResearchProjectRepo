@@ -3,6 +3,7 @@ sys.path.append('../')
 
 import numpy as np
 import pandas as pd
+from time import time
 
 import kernel_SVM_functions as kSVM
 import QUBO_SVM_functions as qSVM
