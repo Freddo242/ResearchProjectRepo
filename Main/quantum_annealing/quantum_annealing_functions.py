@@ -1,9 +1,9 @@
 import sys 
-import os
 sys.path.append('../')
 
 import numpy as np 
-import pandas as pd
+import pickle
+import copy
 from sklearn.model_selection import StratifiedKFold
 
 from quantum_classifier import QSVMq
@@ -98,6 +98,7 @@ def QA_calibration(X_train, t_train, B_values, K_values, R_values, gamma_values,
 
     return auroc, accuracy
 
+
 def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_reads = 100):
     """
     X_train: training dataset to be 20 datapoints.
@@ -161,6 +162,50 @@ def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_
         accuracy_results.append(np.mean(fold_acc))
 
     return auroc_results, accuracy_results
+
+
+def bagged_models(X_train, t_train, model, filename, num_models = 50, bag_size = 10, sample_size = 20):
+    """
+    Plan:
+    takes model.
+    for 50 bagged models
+        samples from X_train sample_size datapoints
+        create a copy of the model
+        fit to sample usng QA -- Take the lowest energy state.
+        put model in a list -- the bag. 
+        end up with a bag of bag_size classifiers.
+    save 50 bagged models.
+    """
+
+    models = []
+
+    for n in range(num_models):
+        #Create a bagged classifier
+        print('model: ', n)
+        bag = []
+
+        for b in range(bag_size):
+            print('bag: ', b)
+            f_name = f'../QA_bagged_results/model-{n}_bag-{b}'
+
+            sample_index = stratified_sample(t_train, sample_size)
+            X_sample, t_sample = X_train[sample_index], t_train[sample_index]
+
+            clf = copy.deepcopy(model)
+            clf = clf.make_QUBO_problem(X_sample, t_sample).fit(X_sample, t_sample, f_name)
+
+            best_alphas = clf.top_models_arr[0].reshape(-1, 1)
+
+            clf = clf.set_model(X_sample, t_sample, best_alphas)
+
+            bag.append(clf)
+
+        models.append(bag)
+
+    with open(f'../QA_bagged_results/{filename}', 'wb') as f:
+        pickle.dump(models, f)
+    print("models dumped")
+
 
 
 def main():
