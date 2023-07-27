@@ -13,7 +13,7 @@ from kernel_SVM_functions import rbf_kernel
 def main():
 
 
-    datafile = 'synth_0.4.csv'
+    datafile = 'synth_0.3.csv'
     datafilepath = f'../synth_data/{datafile}'
     train_size = 0.4
 
@@ -34,11 +34,7 @@ def main():
     QAClassifier = QSVMq(B, K, R, kernel_func, gamma)
     filename = datafile[:-4] + 'QA_models'
 
-    bagged_models(X_train, t_train, QAClassifier, filename, num_models = 50, bag_size = 10, sample_size = 18)
-
-
-
-    pass
+    bagged_models(X_train, t_train, QAClassifier, filename, num_models = 20, bag_size = 10, sample_size = 18)
     
 
 if __name__ == "__main__":
