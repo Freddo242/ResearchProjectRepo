@@ -81,8 +81,8 @@ class QSVMq(object):
             sample_df = pd.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}-f{fold}')
            
         else:
-            sample_df.to_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
-            sample_df.read_csv(f'{filepath}/{self.B, self.K, self.R, self.param}')
+            sample_df.to_csv(f'{filepath}')
+            sample_df = pd.read_csv(f'{filepath}')
 
         #sorting by energy to find the top num_models
         sample_df = sample_df.sort_values('energy', ascending = True)

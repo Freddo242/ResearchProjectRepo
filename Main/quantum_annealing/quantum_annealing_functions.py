@@ -4,6 +4,7 @@ sys.path.append('../')
 import numpy as np 
 import pickle
 import copy
+from time import time
 from sklearn.model_selection import StratifiedKFold
 
 from quantum_classifier import QSVMq
@@ -166,43 +167,51 @@ def QA_cross_validate(X_train, t_train, classifier, filepath, k_folds = 10, num_
 
 def bagged_models(X_train, t_train, model, filename, num_models = 50, bag_size = 10, sample_size = 20):
     """
-    Plan:
-    takes model.
-    for 50 bagged models
-        samples from X_train sample_size datapoints
-        create a copy of the model
-        fit to sample usng QA -- Take the lowest energy state.
-        put model in a list -- the bag. 
-        end up with a bag of bag_size classifiers.
-    save 50 bagged models.
     """
-
+    
     models = []
+
+    wait = False
 
     for n in range(num_models):
         #Create a bagged classifier
         print('model: ', n)
         bag = []
 
+        t0 = time()
+
         for b in range(bag_size):
             print('bag: ', b)
-            f_name = f'../QA_bagged_results/model-{n}_bag-{b}'
+            f_name = f'../QA_bagged_results/synth-3/model-{n}_bag-{b}'
 
             sample_index = stratified_sample(t_train, sample_size)
             X_sample, t_sample = X_train[sample_index], t_train[sample_index]
 
+            print('sampled')
             clf = copy.deepcopy(model)
             clf = clf.make_QUBO_problem(X_sample, t_sample).fit(X_sample, t_sample, f_name)
-
+            print('model trained')
             best_alphas = clf.top_models_arr[0].reshape(-1, 1)
 
             clf = clf.set_model(X_sample, t_sample, best_alphas)
-
+            print('model set')
             bag.append(clf)
 
         models.append(bag)
 
-    with open(f'../QA_bagged_results/{filename}', 'wb') as f:
+        print(time() - t0)
+
+        if wait:
+
+            x = input('waiting...')
+            if x == 'next':
+                continue
+            elif x =='goforit':
+                wait = False
+            else:
+                break
+
+    with open(f'../QA_bagged_results/synth-3/{filename}', 'wb') as f:
         pickle.dump(models, f)
     print("models dumped")
 
