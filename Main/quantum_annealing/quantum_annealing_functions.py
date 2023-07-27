@@ -169,11 +169,12 @@ def bagged_models(X_train, t_train, model, filename, num_models = 50, bag_size =
     """
     """
     
-    models = []
+    with open('../QA_bagged_results/synth-4/synth-4_bagged_models', 'br') as f:
+        models = pickle.load(f)
 
     wait = False
 
-    for n in range(num_models):
+    for n in range(23, 23 + num_models):
         #Create a bagged classifier
         print('model: ', n)
         bag = []
@@ -182,7 +183,7 @@ def bagged_models(X_train, t_train, model, filename, num_models = 50, bag_size =
 
         for b in range(bag_size):
             print('bag: ', b)
-            f_name = f'../QA_bagged_results/synth-3/model-{n}_bag-{b}'
+            f_name = f'../QA_bagged_results/synth-4/model-{n}_bag-{b}'
 
             sample_index = stratified_sample(t_train, sample_size)
             X_sample, t_sample = X_train[sample_index], t_train[sample_index]
@@ -211,10 +212,9 @@ def bagged_models(X_train, t_train, model, filename, num_models = 50, bag_size =
             else:
                 break
 
-    with open(f'../QA_bagged_results/synth-3/{filename}', 'wb') as f:
+    with open('../QA_bagged_results/synth-4/synth-4_bagged_models', 'wb') as f:
         pickle.dump(models, f)
     print("models dumped")
-
 
 
 def main():
