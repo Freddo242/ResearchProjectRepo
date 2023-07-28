@@ -7,9 +7,6 @@ import pandas as pd
 import kernel_SVM_functions as kSVM
 import QUBO_SVM_functions as qSVM
 
-from dwave.system.composites import EmbeddingComposite
-from dwave.system.samplers import DWaveSampler
-
 
 class QSVMq(object):
     """QUBO soft margin support vector machine, trained using Quantum Annealing """
@@ -67,6 +64,8 @@ class QSVMq(object):
         Fold is for naming the file. If no fold is given, file is saved under its hyper-parameters (B, K, R, gamma)
         Solves the self.qubo_dict using the DWave Sampler and takes 100 reads
         """
+        from dwave.system.composites import EmbeddingComposite
+        from dwave.system.samplers import DWaveSampler
 
         #setting up sampler
         sampler = EmbeddingComposite(DWaveSampler())
