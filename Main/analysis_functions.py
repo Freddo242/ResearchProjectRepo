@@ -110,6 +110,7 @@ def models_auc_boxplot(models, auroc, top_csvm_auroc, fig = None, ax = None):
     whiskerprops = dict(linewidth=1)
 
     low_ylim = np.floor(10 * np.min(auroc.flatten())) / 10
+    print(low_ylim)
 
     if fig:
         
@@ -118,17 +119,16 @@ def models_auc_boxplot(models, auroc, top_csvm_auroc, fig = None, ax = None):
         for patch in bplot['boxes']:
             patch.set_facecolor('lightblue')
 
-        ax.plot(np.arange(1, 21), np.full(20, top_csvm_auroc), color = 'green', linewidth= 1, linestyle='--', zorder = 2)
+        #ax.plot(np.arange(1, 21), np.full(20, top_csvm_auroc), color = 'green', linewidth= 1, linestyle='--', zorder = 2, label = 'cSVM')
 
         #set ylim
         ax.set_ylim(low_ylim - 0.05, 1.01)
         #Set ylabels and inserting cSVM label
-        ylabels = [ str(round(val, 1)) for val in np.arange(low_ylim, 1.01, 0.1)]
+        ylabels = [str(round(val, 1)) for val in np.arange(low_ylim, 1.01, 0.1)]
 
-        csvm_idx = int(len(ylabels) / 2)
-        ylabels.insert(csvm_idx, 'cSVM')
         #Setting y ticks
-        ax.set_yticks(np.insert(np.arange(low_ylim, 1.01, 0.1), csvm_idx, top_csvm_auroc), labels = ylabels)
+
+        ax.set_yticks(np.arange(low_ylim, 1.01, 0.1), labels = ylabels)
         ax.yaxis.set_minor_locator(AutoMinorLocator())
 
         #ticks will be at 1 to 20.

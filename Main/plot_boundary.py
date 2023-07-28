@@ -38,6 +38,8 @@ def plot(X, t, model, contour_func, fig = None, ax = None, colorbar = False, sup
     prediction = model.predict(np.hstack([xx.reshape(-1,1), yy.reshape(-1,1)]))
     prediction = prediction.reshape(xx.shape)
 
+    size = 15
+
     if fig:
 
         #Optionally pass in an axis to plot onto
@@ -50,11 +52,11 @@ def plot(X, t, model, contour_func, fig = None, ax = None, colorbar = False, sup
 
         cf = ax.contourf(xx, yy, cf_values, cmap = 'Spectral', levels = levels, extend = 'min', alpha = 0.8)
         cs = ax.contour(xx, yy, prediction, [0], cmap = 'bone')
-        ax.scatter(X[:, 0], X[:, 1], c = t, cmap = 'bwr_r', edgecolors = 'w', zorder = 3, alpha = 0.8)
+        ax.scatter(X[:, 0], X[:, 1], c = t, cmap = 'bwr_r', s = size, edgecolors = 'w', zorder = 3, alpha = 0.8)
 
         #Whether to show support vectors
         if support_vecs:
-            ax.scatter(model.support_vectors[:, 0], model.support_vectors[:, 1], color = 'lightgrey', edgecolors = 'w', zorder = 5)
+            ax.scatter(model.support_vectors[:, 0], model.support_vectors[:, 1], s = size * 1.5, color = 'lightgrey', edgecolors = 'w', zorder = 5)
 
         if colorbar:
             if contour_func == 'predict_proba':
