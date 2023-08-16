@@ -119,7 +119,7 @@ def models_auc_boxplot(models, auroc, top_csvm_auroc, fig = None, ax = None):
         for patch in bplot['boxes']:
             patch.set_facecolor('lightblue')
 
-        #ax.plot(np.arange(1, 21), np.full(20, top_csvm_auroc), color = 'green', linewidth= 1, linestyle='--', zorder = 2, label = 'cSVM')
+        ax.plot(np.arange(1, 21), np.full(20, top_csvm_auroc), color = 'green', linewidth= 1, linestyle='--', zorder = 2, label = 'cSVM AUROC')
 
         #set ylim
         ax.set_ylim(low_ylim - 0.05, 1.01)
@@ -142,8 +142,6 @@ def models_auc_boxplot(models, auroc, top_csvm_auroc, fig = None, ax = None):
 
         for patch in bplot['boxes']:
             patch.set_facecolor('lightblue')
-
-        ax.plot(np.arange(1, 21), np.full(20, top_csvm_auroc), color = 'green', linewidth= 1, linestyle='--', zorder = 2)
 
         ax.set_ylim(0.49, 1.01)
         ylabels = [ str(round(val, 1)) for val in np.arange(0.5, 1.01, 0.1)]
