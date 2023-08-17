@@ -2,7 +2,7 @@
 
 ## Table of contents
 
-## Generl Info
+## General Info
 
 The code in this repository is for my research project on training kernel support vector machines (SVM) on quantum annealers. 
 The aim of the project was to test whether SVM on a quantum annealer can produce models as good if not better than classically trained SVM.
@@ -20,15 +20,15 @@ To train cSVM, we use the CVXOPT module in python. For simulated annealing, we h
 python 3.9.13
 
 We used an anaconda environment which included the following packages:
-numpy 1.21.5
-matplotlib 3.5.2
-scikit-learn 1.0.2
-scipy 1.9.1
-cvxopt 1.2.6
+- numpy 1.21.5
+- matplotlib 3.5.2
+- scikit-learn 1.0.2
+- scipy 1.9.1
+- cvxopt 1.2.6
 
 From DWave Leap:
-dwave.system.composites.EmbeddingComposite
-dwave.system.samplers.DWaveSampler
+- dwave.system.composites.EmbeddingComposite
+- dwave.system.samplers.DWaveSampler
 
 ## Features
 
