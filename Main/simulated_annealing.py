@@ -13,6 +13,7 @@ class QObjectiveFunction:
         return ((s.T @ self.Q) @ s + s.T @ self.q).flatten()[0]
 
 def max_cut_problem(s):
+    """standard QUBO problem for training purposes"""
     Q = -np.array([[2, -1, -1, 0, 0],
               [-1, 2, 0, -1, 0], 
               [-1, 0, 3, -1, -1], 
@@ -24,6 +25,7 @@ def max_cut_problem(s):
     return ((s.T @ Q) @ s + s.T @ q).flatten()[0]
 
 def get_neighbour(s, D, m_rate):
+    """returns a new suggestion for the next solution"""
     flip_probs = np.random.uniform(0, 1, D)
     #creating a mask where 1 is if the bit is flipped and 0 is if it is not.
     flip_mask = np.zeros(D)
@@ -34,6 +36,7 @@ def get_neighbour(s, D, m_rate):
     return new_s
 
 def acceptance_probability(e_old, e_new, T):
+    """decides the probability with which to accept the new solution depending on whether it is better or worse than the current."""
     if e_new < e_old:
         return 1
     else:
@@ -41,9 +44,11 @@ def acceptance_probability(e_old, e_new, T):
         return np.exp(-diff / T)
 
 def cool_T(t0, k, alpha):
+    """Updates the temperature parameter each iteration"""
     return t0 / (1 + alpha * np.log(1 + k))
 
 def temperature_probability_graph(t0, alpha):
+    """Produces a graph showing the trend of temperature and probability over time"""
     fig, ax = plt.subplots(1, 2, figsize=(8, 4))
     N = 100
     xs = np.arange(0, N)

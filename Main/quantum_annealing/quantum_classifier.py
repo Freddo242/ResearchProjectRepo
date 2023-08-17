@@ -125,3 +125,10 @@ class QSVMq(object):
     def predict(self, X_test):
         """Returns the predicted class for the test data with threshold 0"""
         return np.sign(self.decision_function(X_test))
+    
+
+def main():
+    print("file contains the QUBO SVM classifier trained using quantum annealing")
+
+if __name__ == "__main__":
+    main()
