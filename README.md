@@ -60,13 +60,20 @@ Notable functions include:
 ### classifiers.py
 
 File contains two of the three classifier models `SoftMarginKernelClassifier` (cSVM) and `QUBOSoftMarginClassifier` which is the QUBO SVM whose training problem is solved using simulated annealing. 
-Each is written in the framework of a sklearn classifier so they contain: `.fit()`, `.decision_function()`, `.predict()`, `.predict_proba()`
+Each is written in the framework of a sklearn classifier so they contain: 
+`.fit()`, 
+`.decision_function()`, 
+`.predict()`, 
+`.predict_proba()`
+
 Note: the `.fit()` function for `QUBOSoftMarginClassifier` is split up since we need to create the QUBO problem first.
 We will come to usage later.
 
 ### cross_validation.py
 
-This file contains only one function: `qp_cross_validate()` which can be used to cross validate either a `SoftMarginKernelClassifier` or `QUBOSoftMarginClassifier`. 
+This file contains only one function: 
+`qp_cross_validate()` which can be used to cross validate either a `SoftMarginKernelClassifier` or `QUBOSoftMarginClassifier`. 
+
 An important argument is the `num_models = 1` which deteremines the number of times to evaluate the model on each fold. For cSVM this is default at 1, but for QUBO SVM, this is set to 30.
 
 ### parameter_tuning.py
@@ -84,7 +91,7 @@ quantum_classifier.py includes the class `QSVMq` which is a QUBO SVM classifier 
 quantum_annealing_functions.py contains functions for cross validation, calibration, and running an ensemble classifier. However, as explained in our report, only the ensemble classifier function `bagged_models` is used. 
 To run a bagged classifier, edit the run_bagged_classifier.py file with desired hyper-parameters, filepaths, and data. 
 
-Files not used: run_QA.py, which runs calibration. 
+Files not used: run_QA.py, which runs calibration, not used in the report. 
 
 ### Other
 
