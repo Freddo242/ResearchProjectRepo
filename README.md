@@ -120,18 +120,18 @@ t should be N dimensaionl, hence the reshaping.
 
 ### classic SVM
 
-`from classifiers import SoftMarginKernelClassifier`
+`from classifiers import SoftMarginKernelClassifier`<br>
 
-Initialise the classifier
+Initialise the classifier<br>
 
-`clf = SoftMarginKernelClassifier(4, rbf_kernel, 2)`
+`clf = SoftMarginKernelClassifier(4, rbf_kernel, 2)`<br>
 
-Fit to data
-`clf = clf.fit(X_train, t_train)`
+Fit to data<br>
+`clf = clf.fit(X_train, t_train)`<br>
 
-predict and score test data
-`preds = clf.predict(X_test)`
-`scores = clf.decision_function(X_test)`
+predict and score test data<br>
+`preds = clf.predict(X_test)`<br>
+`scores = clf.decision_function(X_test)`<br>
 
 Calculate AUROC and accuracy
 ```
@@ -145,15 +145,15 @@ accuracy = compute_accuracy(preds, t_test)
 
 `from classifiers import QUBOSoftMarginClassifier`
 
-Intitialise
-`qclf = QUBOSoftMarginClassifier(2, 2, 3, rbf_kernel, 4)`
+Intitialise<br>
+`qclf = QUBOSoftMarginClassifier(2, 2, 3, rbf_kernel, 4)`<br>
 
-Make QUBO problem and fit
-`qclf = qclf.make_QUBO_problem(X_train, t_train).fit(X_train, t_train)`
+Make QUBO problem and fit<br>
+`qclf = qclf.make_QUBO_problem(X_train, t_train).fit(X_train, t_train)`<br>
 
-Predit and score test data
-`scores = qclf.decision_function(X_test)`
-`preds = qclf.predict(X_test)`
+Predit and score test data<br>
+`scores = qclf.decision_function(X_test)`<br>
+`preds = qclf.predict(X_test)`<br>
 
 Calculate AUROC and accuracy
 ```
@@ -167,20 +167,20 @@ accuracy = compute_accuracy(preds, t_test)
 
 Again, make sure you're using the DWave Leap environment.
 
-`from quantum_classifier import QSVMq`
+`from quantum_classifier import QSVMq`<br>
 
-initialise
-`qa_clf = QSVMq(2, 2, 3, rbf_kernel, 4)`
+initialise<br>
+`qa_clf = QSVMq(2, 2, 3, rbf_kernel, 4)`<br>
 
-Make QUBO problem and fit
-`qa_clf = qa_clf.make_QUBO_problem(X_train, t_train).fit(X_train, t_train)`
+Make QUBO problem and fit<br>
+`qa_clf = qa_clf.make_QUBO_problem(X_train, t_train).fit(X_train, t_train)`<br>
 
-If you want to avoid this step for testing purposes, you can manually set the alphas for the model using the method `qa_clf.set_model(X_train, t_train, alphas)`.
+If you want to avoid this step for testing purposes, you can manually set the alphas for the model using the method <br>`qa_clf.set_model(X_train, t_train, alphas)`.
 If you do this, ensure alphas is an N dimensional array, where N is the number of feature vectors in the training set X_train.
 
-Predit and score test data
-`scores = qa_clf.decision_function(X_test)`
-`preds = qa_clf.predict(X_test)`
+Predit and score test data<br>
+`scores = qa_clf.decision_function(X_test)`<br>
+`preds = qa_clf.predict(X_test)`<br>
 
 Calculate AUROC and accuracy
 ```
